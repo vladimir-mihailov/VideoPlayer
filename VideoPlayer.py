@@ -1,39 +1,54 @@
 import cv2
 import tkinter as tk
-from tkinter import Label
+from tkinter import Label, Button, filedialog
 from PIL import Image, ImageTk
 
 class VideoPlayer:
     def __init__(self, window , video_source):
         self.window = window
+        self.window.geometry("300x200")
         self.video_cource = video_source
         self. vid = cv2.VideoCapture(video_source)
 
         self. label = Label(window)
         self.label.pack()
 
-        self.update()
+        self.btn_select_video = Button(window, text='Выбрать видео', command=self.select_video)
+        self.btn_select_video.pack()
 
+        self.update()
         self.window.protocol("WM_DELITE_WINDOW", self.on_closing)
 
         self.window.mainloop()
 
+    def select_video(self):
+        video_path = filedialog.askopenfilename(filetypes=[('Video Files',
+                                                            '*.mp3; ''*mp4; avi;'
+                                                            ' *mov; *mkv')])
+        if video_path(self):
+            self.video_cource = video_path()
+            if self.video_isOpend():
+                self.vid.release()
+
+            self.vid = cv2.VideoCapture(self.video_source)
+
     def update(self):
-        ret, flame = self.vid.read()
+        ret, frame = self.vid.read()
         if ret:
-            flame = cv2.cvtColor(flame, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(flame)
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame)
             imgtk = ImageTk.PhotoImage(image=img)
             self.label.imgtk = imgtk
             self.label.configure(image=imgtk)
 
-        self.window.after(20, self.update)
+        self.window.after(50, self.update)
 
 
     def on_closing(self):
         if self.vid.isOpened():
             self.vid.release()
-            self.window.destroy()
+        self.window.destoy()
+
 
 if __name__ == '__main__':
     root = tk.Tk()
